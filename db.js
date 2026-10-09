@@ -1,33 +1,31 @@
-const customers = [{
-    id: 1,
-    nome: "Guilherme",
-    idade: 22,
-    uf: "SP"
-}];
+const mysql = require("mysql2/promise");
 
-function selectCustomers() {
-    return customers;
+const client = mysql.createPool(process.env.CONNECTION_STRING);
+
+async function selectCustomers() {
+    const results = await client.query("SELECT * FROM clientes");
+    return results[0];
 }
 
-function selectCustomer(id) {
-    return customers.find(c => c.id === id);
+async function selectCustomer(id) {
+    const results = await client.query("SELECT * FROM clientes WHERE id = ?", [id]);
+    return results[0];
 }
 
-function insertCustomer(customer) {
-    customers.push(customer);
+async function insertCustomer(customer) {
+    const values = [customer.nome, customer.idade, customer.uf];
+    await client.query("INSERT INTO clientes(nome, idade, uf) VALUES(?, ?, ?)", values);
 }
 
-function updateCustomer(id, customerData) {
-    const customer = customers.find(c => c.id === id);
-    if(!customer) return;
-    customer.nome = customerData.nome;
-    customer.idade = customerData.idade;
-    customer.uf = customerData.uf;
+async function updateCustomer(id, customer) {
+    const values = [customer.nome, customer.idade, customer.uf, id];
+    await client.query("UPDATE clientes SET nome = ?, idade = ?, uf = ? WHERE id = ?", values);
+    
 }
 
 function deleteCustomer(id) {
-    const index = customers.findIndex(c => c.id === id);
-    customers.splice(index, 1);
+    const values = [id];
+    client.query("DELETE FROM clientes WHERE id = ?", values);
 }
 
 module.exports = {

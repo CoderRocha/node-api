@@ -8,33 +8,35 @@ const app = express();
 
 app.use(express.json());
 
-app.delete("/clientes/:id", (request, response) => {
+app.delete("/clientes/:id", async (request, response) => {
   const id = parseInt(request.params.id);
-  db.deleteCustomer(id);
+  await db.deleteCustomer(id);
   response.sendStatus(204);
 });
 
 
-app.patch("/clientes/:id", (request, response) => {
+app.patch("/clientes/:id", async (request, response) => {
   const id = parseInt(request.params.id);
   const customer = request.body;
-  db.updateCustomer(id, customer);
+  await db.updateCustomer(id, customer);
   response.sendStatus(200);
 });
 
-app.post("/clientes", (request, response) => {
+app.post("/clientes", async (request, response) => {
   const customer = request.body;
-  db.insertCustomer(customer);
+  await db.insertCustomer(customer);
   response.sendStatus(201);
 });
 
-app.get("/clientes/:id", (request, response) => {
+app.get("/clientes/:id", async (request, response) => {
   const id = parseInt(request.params.id);
-  response.json(db.selectCustomer(id));
+  const results = await db.selectCustomer(id);
+  response.json(results);
 });
 
-app.get("/clientes", (request, response) => {
-  response.json(db.selectCustomers());
+app.get("/clientes", async (request, response) => {
+  const results = await db.selectCustomers();
+  response.json(results);
 });
 
 app.get("/", (request, response, next) => {
